@@ -56,6 +56,12 @@ namespace FluentExcel
         /// </summary>
         public Func<object, object> ValueConverter { get; internal set; }
 
+
+        /// <summary>
+        /// Get the column width.
+        /// </summary>
+        public int ColumnWidth { get; internal set; }
+
         /// <summary>
         /// Configures the excel cell index for the property.
         /// </summary>
@@ -221,6 +227,17 @@ namespace FluentExcel
             AutoIndex = true;
             AllowMerge = allowMerge;
             ValueConverter = valueConverter;
+        }
+
+        /// <summary>
+        /// Configures the width of the column.
+        /// </summary>
+        /// <param name="width">Set the width (in units of 1/256th of a character width)</param>
+        public PropertyConfiguration HasColumnWidth(int width)
+        {
+            ColumnWidth = width;
+
+            return this;
         }
     }
 }
