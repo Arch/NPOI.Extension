@@ -67,7 +67,7 @@ namespace FluentExcel
             }
 
             IWorkbook book = InitializeWorkbook(excelFile);
-            using (Stream ms = isVolatile ? (Stream)new MemoryStream() : new FileStream(excelFile, FileMode.OpenOrCreate, FileAccess.Write))
+            using (Stream ms = isVolatile ? (Stream) new MemoryStream() : new FileStream(excelFile, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 IEnumerable<byte> output = Enumerable.Empty<byte>();
                 foreach (var sheet in source.AsQueryable().GroupBy(sheetSelector))
@@ -82,7 +82,7 @@ namespace FluentExcel
                     }
                 }
                 book.Write(ms);
-                return isVolatile ? ((MemoryStream)ms).ToArray() : null;
+                return isVolatile ? ((MemoryStream) ms).ToArray() : null;
             }
         }
 
@@ -144,6 +144,8 @@ namespace FluentExcel
                 Excel.Setting.TitleCellStyleApplier(titleStyle, font);
             }
 
+            var resizedColumns = new int[properties.Length];
+
             var titleRow = sheet.CreateRow(0);
             var rowIndex = 1;
             foreach (var item in source)
@@ -196,11 +198,18 @@ namespace FluentExcel
                         }
 
                         var titleCell = titleRow.CreateCell(index);
-                        if (titleStyle != null) 
+                        if (titleStyle != null)
                         {
                             titleCell.CellStyle = titleStyle;
                         }
                         titleCell.SetCellValue(title);
+
+                        if (config.ColumnWidth > 0)
+                        {
+                            var cellNum = row.LastCellNum == -1 ? 0 : row.LastCellNum;
+                            sheet.SetColumnWidth(cellNum, config.ColumnWidth);
+                            resizedColumns[cellNum] = cellNum;
+                        }
                     }
 
                     var unwrapType = property.PropertyType.UnwrapNullableType();
@@ -236,7 +245,7 @@ namespace FluentExcel
 
                     if (unwrapType == typeof(bool))
                     {
-                        cell.SetCellValue((bool)value);
+                        cell.SetCellValue((bool) value);
                     }
                     else if (unwrapType == typeof(DateTime))
                     {
@@ -340,6 +349,8 @@ namespace FluentExcel
             // autosize the all columns
             for (int i = 0; i < properties.Length; i++)
             {
+                if (resizedColumns.Contains(i)) continue;
+
                 sheet.AutoSizeColumn(i);
             }
 
@@ -408,7 +419,7 @@ namespace FluentExcel
         {
             col = Convert.ToInt32('A') + col;
             row = row + 1;
-            return ((char)col) + row.ToString();
+            return ((char) col) + row.ToString();
         }
     }
 }

@@ -70,6 +70,7 @@ namespace samples
 
             fc.Property(r => r.City)
               .HasExcelIndex(0)
+              //.HasColumnWidth(30 * 256)
               .HasExcelTitle("城市")
               .IsMergeEnabled();
 
